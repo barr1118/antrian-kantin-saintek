@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antrian Kantin Kampus</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Tampilan Mahasiswa (Default) -->
+        <div id="mahasiswa-view">
+            <header>
+                <h1>Antrian Kantin Ceria</h1>
+            </header>
+            <main>
+                <div class="card now-serving">
+                    <h2>Sedang Dilayani</h2>
+                    <p id="mhs-nomor-sekarang">-</p>
+                </div>
+                <div class="card my-number">
+                    <h2>Nomor Anda</h2>
+                    <p id="nomor-saya">-</p>
+                </div>
+                <div class="card upcoming-queue">
+                    <h2>Daftar Antrian</h2>
+                    <ul id="daftar-antrian">
+                        <li>Memuat...</li>
+                    </ul>
+                </div>
+                <button id="ambil-nomor" class="btn-primary">Ambil Nomor Antrian</button>
+            </main>
+        </div>
+
+        <!-- Tampilan Admin (Tersembunyi by Default) -->
+        <div id="admin-view" class="hidden">
+            <header>
+                <h1>Panel Admin Kantin</h1>
+                <a href="#" id="admin-logout-link">Logout</a>
+            </header>
+            <main>
+                <div class="card now-serving">
+                    <h2>Sedang Dilayani</h2>
+                    <p id="admin-nomor-sekarang">-</p>
+                </div>
+                <div class="admin-controls">
+                    <button id="panggil-selanjutnya" class="btn-primary">Panggil Selanjutnya</button>
+                    <button id="reset-antrian" class="btn-danger">Reset Antrian</button>
+                </div>
+                <div class="card upcoming-queue">
+                    <h2>Daftar Antrian Aktif</h2>
+                    <ul id="daftar-antrian-admin">
+                        <li>Tidak ada antrian.</li>
+                    </ul>
+                </div>
+            </main>
+        </div>
+
+        <footer>
+            <a href="#" id="admin-login-link">Login sebagai Admin</a>
+        </footer>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <!-- Script Lokal -->
+    <script src="firebase-config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
