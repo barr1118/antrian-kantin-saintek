@@ -1,8 +1,17 @@
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f7f6;
     color: #333;
     margin: 0;
+    
+    /* --- PERUBAHAN UTAMA HANYA DI BARIS INI --- */
+    background-image: url('background.jpg'); /* Menghapus 'images/' dari path */
+    
+    /* Properti lain tetap sama */
+    background-size: cover;                        
+    background-position: center center;            
+    background-repeat: no-repeat;                  
+    background-attachment: fixed;                  
+    
     padding: 20px;
     display: flex;
     justify-content: center;
