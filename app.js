@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- KONFIGURASI PENTING ---
     // Ganti dengan email yang akan dijadikan sebagai admin
-    const ADMIN_EMAIL = "admin.kantin@email.com"; 
+    const ADMIN_EMAIL = "am762638@gmail.com"; 
     
     // Inisialisasi Firebase
     firebase.initializeApp(firebaseConfig);
