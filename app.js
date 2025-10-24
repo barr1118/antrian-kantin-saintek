@@ -1,202 +1,176 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- KONFIGURASI PENTING ---
+    // Ganti dengan email yang akan dijadikan sebagai admin
+    const ADMIN_EMAIL = "admin.kantin@email.com"; 
+    
     // Inisialisasi Firebase
     firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
     const database = firebase.database();
 
     // Referensi Database
     const antrianRef = database.ref('antrian');
     const nomorSekarangRef = database.ref('nomorSedangDipanggil');
-    const nomorTerakhirRef = database.ref('nomorTerakhir'); // Perlu diperhatikan
+    const nomorTerakhirRef = database.ref('nomorTerakhir');
 
-    // Elemen Tampilan
-    const mahasiswaView = document.getElementById('mahasiswa-view');
-    const adminView = document.getElementById('admin-view');
-    const footer = document.querySelector('footer');
-
-    // Elemen Mahasiswa
-    const mhsNomorSekarangEl = document.getElementById('mhs-nomor-sekarang');
-    const nomorSayaEl = document.getElementById('nomor-saya');
-    const daftarAntrianEl = document.getElementById('daftar-antrian');
-    const ambilNomorBtn = document.getElementById('ambil-nomor');
-    const myNumberCard = document.querySelector('.my-number'); // Untuk highlight
-
-    // Elemen Admin
-    const adminNomorSekarangEl = document.getElementById('admin-nomor-sekarang');
-    const daftarAntrianAdminEl = document.getElementById('daftar-antrian-admin');
-    const panggilSelanjutnyaBtn = document.getElementById('panggil-selanjutnya');
-    const resetAntrianBtn = document.getElementById('reset-antrian');
-
-    // Elemen Login/Logout
-    const adminLoginLink = document.getElementById('admin-login-link');
-    const adminLogoutLink = document.getElementById('admin-logout-link');
-
-    // --- LOGIKA PERALIHAN TAMPILAN ---
-
-    function showMahasiswaView() {
-        mahasiswaView.classList.remove('hidden');
-        adminView.classList.add('hidden');
-        footer.classList.remove('hidden');
-    }
-
-    function showAdminView() {
-        mahasiswaView.classList.add('hidden');
-        adminView.classList.remove('hidden');
-        footer.classList.add('hidden');
-    }
-
-    adminLoginLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        const password = prompt('Masukkan kata sandi admin:');
-        if (password === 'babar123') {
-            sessionStorage.setItem('isAdmin', 'true');
-            showAdminView();
-        } else if (password !== null) { // Jika user menekan OK tapi password salah
-            alert('Kata sandi salah!');
-        }
-    });
-
-    adminLogoutLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        sessionStorage.removeItem('isAdmin');
-        showMahasiswaView();
-    });
-
-    if (sessionStorage.getItem('isAdmin') === 'true') {
-        showAdminView();
-    } else {
-        showMahasiswaView();
-    }
-
-    // --- FUNGSI BANTU UNTUK UPDATE UI MAHASISWA ---
-    function updateMahasiswaUIState() {
-        const myStoredNumber = localStorage.getItem('nomorAntrianSaya');
-        if (myStoredNumber) {
-            nomorSayaEl.textContent = `A-${myStoredNumber}`;
-            ambilNomorBtn.disabled = true;
-            ambilNomorBtn.textContent = "Anda Sudah Mengambil Nomor";
+    // --- Cek Status Login Pengguna ---
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            // Pengguna sudah login, lanjutkan ke aplikasi
+            console.log('Pengguna terdeteksi:', user.email);
+            runApp(user);
         } else {
-            nomorSayaEl.textContent = '-';
-            ambilNomorBtn.disabled = false;
-            ambilNomorBtn.textContent = "Ambil Nomor Antrian";
-            // Pastikan tidak ada highlight jika tidak ada nomor
-            myNumberCard.style.backgroundColor = '#f9f9f9';
-            myNumberCard.querySelector('p').style.color = '#007bff';
+            // Pengguna tidak login, paksa kembali ke halaman login
+            console.log('Tidak ada pengguna, mengarahkan ke login.html');
+            window.location.href = 'login.html';
         }
-    }
-
-    // --- LISTENER FIREBASE ---
-
-    // Listener untuk nomor yang sedang dipanggil
-    nomorSekarangRef.on('value', (snapshot) => {
-        const nomor = snapshot.val();
-        const teksNomor = nomor ? `A-${nomor}` : '-';
-        
-        mhsNomorSekarangEl.textContent = teksNomor;
-        adminNomorSekarangEl.textContent = teksNomor;
-
-        const myStoredNumber = localStorage.getItem('nomorAntrianSaya');
-        if (myStoredNumber && (nomor && nomor.toString() === myStoredNumber)) {
-            // Jika nomor kita sedang dipanggil
-            myNumberCard.style.backgroundColor = '#28a745';
-            myNumberCard.querySelector('p').style.color = 'white';
-            // Notifikasi suara (opsional)
-            // new Audio('notif.mp3').play();
-        } else {
-            // Jika nomor kita bukan yang sedang dipanggil, hilangkan highlight
-            myNumberCard.style.backgroundColor = '#f9f9f9';
-            myNumberCard.querySelector('p').style.color = '#007bff';
-        }
-        updateMahasiswaUIState(); // Panggil ini untuk sinkronisasi tombol
     });
 
-    // Listener untuk daftar antrian
-    antrianRef.on('value', (snapshot) => {
-        daftarAntrianEl.innerHTML = '';
-        daftarAntrianAdminEl.innerHTML = '';
+    // Fungsi utama aplikasi, hanya berjalan setelah login berhasil
+    function runApp(user) {
+        // --- Elemen Tampilan & Tombol ---
+        const mahasiswaView = document.getElementById('mahasiswa-view');
+        const adminView = document.getElementById('admin-view');
         
-        const currentQueueNumbers = []; // Untuk mengecek apakah nomor saya masih ada di antrian
-        if (snapshot.exists()) {
-            snapshot.forEach((childSnapshot) => {
-                const nomor = childSnapshot.val().nomor;
-                currentQueueNumbers.push(nomor.toString());
+        // Info Pengguna & Logout
+        const userInfoMhs = document.getElementById('user-info-mhs');
+        const logoutBtnMhs = document.getElementById('logout-btn-mhs');
+        const userInfoAdmin = document.getElementById('user-info-admin');
+        const logoutBtnAdmin = document.getElementById('logout-btn-admin');
 
-                const liMhs = document.createElement('li');
-                const liAdmin = document.createElement('li');
-                
-                liMhs.textContent = `A-${nomor}`;
-                liAdmin.textContent = `A-${nomor}`;
-                
-                daftarAntrianEl.appendChild(liMhs);
-                daftarAntrianAdminEl.appendChild(liAdmin);
+        // Elemen Mahasiswa
+        const mhsNomorSekarangEl = document.getElementById('mhs-nomor-sekarang');
+        const nomorSayaEl = document.getElementById('nomor-saya');
+        const daftarAntrianEl = document.getElementById('daftar-antrian');
+        const ambilNomorBtn = document.getElementById('ambil-nomor');
+        const myNumberCard = document.querySelector('.my-number');
+        
+        // Elemen Admin
+        const adminNomorSekarangEl = document.getElementById('admin-nomor-sekarang');
+        const daftarAntrianAdminEl = document.getElementById('daftar-antrian-admin');
+        const panggilSelanjutnyaBtn = document.getElementById('panggil-selanjutnya');
+        const resetAntrianBtn = document.getElementById('reset-antrian');
+
+        // --- Penentuan Peran & Tampilan ---
+        if (user.email === ADMIN_EMAIL) {
+            adminView.classList.remove('hidden');
+            mahasiswaView.classList.add('hidden');
+            userInfoAdmin.textContent = `Admin: ${user.displayName || user.email}`;
+        } else {
+            mahasiswaView.classList.remove('hidden');
+            adminView.classList.add('hidden');
+            userInfoMhs.textContent = `Halo, ${user.displayName || user.email}`;
+        }
+
+        // --- Logika Tombol Logout ---
+        function handleLogout() {
+            auth.signOut().then(() => {
+                console.log('Logout berhasil');
+                // onAuthStateChanged akan otomatis mengarahkan ke login.html
             });
-        } else {
-            daftarAntrianEl.innerHTML = '<li>Antrian kosong</li>';
-            daftarAntrianAdminEl.innerHTML = '<li>Tidak ada antrian.</li>';
         }
+        logoutBtnMhs.addEventListener('click', handleLogout);
+        logoutBtnAdmin.addEventListener('click', handleLogout);
 
-        // Sinkronisasi status nomor saya setelah daftar antrian diupdate
-        const myStoredNumber = localStorage.getItem('nomorAntrianSaya');
-        const currentServingNumber = mhsNomorSekarangEl.textContent.replace('A-', '') || null;
+        // --- SISA KODE (LOGIKA ANTRIAN) TETAP SAMA SEPERTI SEBELUMNYA ---
+        // (Saya salin lagi kode antrian yang sudah diperbaiki agar lengkap)
 
-        // Kondisi untuk menghapus nomor saya dari local storage:
-        // 1. Saya punya nomor di localStorage.
-        // 2. Nomor saya TIDAK SEDANG DIPANGGIL.
-        // 3. Nomor saya TIDAK ADA DALAM DAFTAR ANTRIAN YANG MASIH AKTIF.
-        if (myStoredNumber && 
-            myStoredNumber !== currentServingNumber &&
-            !currentQueueNumbers.includes(myStoredNumber)) {
-            
-            localStorage.removeItem('nomorAntrianSaya');
-        }
-        updateMahasiswaUIState(); // Panggil ini untuk sinkronisasi tombol
-    });
-
-    // --- FUNGSI SPESIFIK MAHASISWA ---
-    
-    ambilNomorBtn.addEventListener('click', () => {
-        nomorTerakhirRef.transaction((currentValue) => (currentValue || 0) + 1)
-        .then((result) => {
-            if (result.committed) {
-                const nomorBaru = result.snapshot.val();
-                antrianRef.push().set({ nomor: nomorBaru });
-                localStorage.setItem('nomorAntrianSaya', nomorBaru.toString()); // Simpan sebagai string
-                updateMahasiswaUIState(); // Update UI setelah mengambil nomor
-            }
-        });
-    });
-
-    // Panggil saat DOM dimuat untuk mengatur status awal
-    updateMahasiswaUIState(); 
-
-    // --- FUNGSI SPESIFIK ADMIN ---
-
-    panggilSelanjutnyaBtn.addEventListener('click', () => {
-        antrianRef.orderByKey().limitToFirst(1).once('value', (snapshot) => {
-            if (snapshot.exists()) {
-                let keyToDelete, nomorToCall;
-                snapshot.forEach((child) => {
-                    keyToDelete = child.key;
-                    nomorToCall = child.val().nomor;
-                });
-                nomorSekarangRef.set(nomorToCall);
-                antrianRef.child(keyToDelete).remove();
+        function updateMahasiswaUIState() {
+            const myStoredNumber = localStorage.getItem('nomorAntrianSaya');
+            if (myStoredNumber) {
+                nomorSayaEl.textContent = `A-${myStoredNumber}`;
+                ambilNomorBtn.disabled = true;
+                ambilNomorBtn.textContent = "Anda Sudah Mengambil Nomor";
             } else {
-                alert('Antrian sudah kosong!');
-                nomorSekarangRef.set(null); // Pastikan nomor sedang dipanggil kosong
+                nomorSayaEl.textContent = '-';
+                ambilNomorBtn.disabled = false;
+                ambilNomorBtn.textContent = "Ambil Nomor Antrian";
+                myNumberCard.style.backgroundColor = '#f9f9f9';
+                myNumberCard.querySelector('p').style.color = '#007bff';
+            }
+        }
+
+        nomorSekarangRef.on('value', (snapshot) => {
+            const nomor = snapshot.val();
+            const teksNomor = nomor ? `A-${nomor}` : '-';
+            mhsNomorSekarangEl.textContent = teksNomor;
+            adminNomorSekarangEl.textContent = teksNomor;
+            const myStoredNumber = localStorage.getItem('nomorAntrianSaya');
+            if (myStoredNumber && (nomor && nomor.toString() === myStoredNumber)) {
+                myNumberCard.style.backgroundColor = '#28a745';
+                myNumberCard.querySelector('p').style.color = 'white';
+            } else {
+                myNumberCard.style.backgroundColor = '#f9f9f9';
+                myNumberCard.querySelector('p').style.color = '#007bff';
+            }
+            updateMahasiswaUIState();
+        });
+
+        antrianRef.on('value', (snapshot) => {
+            daftarAntrianEl.innerHTML = '';
+            daftarAntrianAdminEl.innerHTML = '';
+            const currentQueueNumbers = [];
+            if (snapshot.exists()) {
+                snapshot.forEach((childSnapshot) => {
+                    const nomor = childSnapshot.val().nomor;
+                    currentQueueNumbers.push(nomor.toString());
+                    const liMhs = document.createElement('li');
+                    const liAdmin = document.createElement('li');
+                    liMhs.textContent = `A-${nomor}`;
+                    liAdmin.textContent = `A-${nomor}`;
+                    daftarAntrianEl.appendChild(liMhs);
+                    daftarAntrianAdminEl.appendChild(liAdmin);
+                });
+            } else {
+                daftarAntrianEl.innerHTML = '<li>Antrian kosong</li>';
+                daftarAntrianAdminEl.innerHTML = '<li>Tidak ada antrian.</li>';
+            }
+            const myStoredNumber = localStorage.getItem('nomorAntrianSaya');
+            const currentServingNumber = mhsNomorSekarangEl.textContent.replace('A-', '') || null;
+            if (myStoredNumber && myStoredNumber !== currentServingNumber && !currentQueueNumbers.includes(myStoredNumber)) {
+                localStorage.removeItem('nomorAntrianSaya');
+            }
+            updateMahasiswaUIState();
+        });
+
+        ambilNomorBtn.addEventListener('click', () => {
+            nomorTerakhirRef.transaction((currentValue) => (currentValue || 0) + 1)
+            .then((result) => {
+                if (result.committed) {
+                    const nomorBaru = result.snapshot.val();
+                    antrianRef.push().set({ nomor: nomorBaru });
+                    localStorage.setItem('nomorAntrianSaya', nomorBaru.toString());
+                    updateMahasiswaUIState();
+                }
+            });
+        });
+
+        updateMahasiswaUIState();
+
+        panggilSelanjutnyaBtn.addEventListener('click', () => {
+            antrianRef.orderByKey().limitToFirst(1).once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    let keyToDelete, nomorToCall;
+                    snapshot.forEach((child) => {
+                        keyToDelete = child.key;
+                        nomorToCall = child.val().nomor;
+                    });
+                    nomorSekarangRef.set(nomorToCall);
+                    antrianRef.child(keyToDelete).remove();
+                } else {
+                    alert('Antrian sudah kosong!');
+                    nomorSekarangRef.set(null);
+                }
+            });
+        });
+
+        resetAntrianBtn.addEventListener('click', () => {
+            if (confirm('Yakin ingin mereset seluruh data antrian?')) {
+                antrianRef.set(null);
+                nomorSekarangRef.set(null);
+                nomorTerakhirRef.set(0);
+                alert('Antrian berhasil direset.');
             }
         });
-    });
-
-    resetAntrianBtn.addEventListener('click', () => {
-        if (confirm('Yakin ingin mereset seluruh data antrian? Aksi ini tidak bisa dibatalkan!')) {
-            antrianRef.set(null);
-            nomorSekarangRef.set(null);
-            nomorTerakhirRef.set(0); // Reset nomor terakhir ke 0
-            
-            // Tidak perlu removeItem('nomorAntrianSaya') di sini karena akan ditangani
-            // oleh listener antrianRef.on('value') di sisi klien semua pengguna.
-            
-            alert('Antrian berhasil direset.');
-        }
-    });
+    } // Akhir dari fungsi runApp
 });

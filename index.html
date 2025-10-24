@@ -12,8 +12,13 @@
         <div id="mahasiswa-view">
             <header>
                 <h1>Antrian Kantin Saintek</h1>
+                <div class="header-user-info">
+                    <span id="user-info-mhs"></span>
+                    <a href="#" id="logout-btn-mhs">Logout</a>
+                </div>
             </header>
             <main>
+                <!-- ... (Isi card tetap sama) ... -->
                 <div class="card now-serving">
                     <h2>Sedang Dilayani</h2>
                     <p id="mhs-nomor-sekarang">-</p>
@@ -24,9 +29,7 @@
                 </div>
                 <div class="card upcoming-queue">
                     <h2>Daftar Antrian</h2>
-                    <ul id="daftar-antrian">
-                        <li>Memuat...</li>
-                    </ul>
+                    <ul id="daftar-antrian"></ul>
                 </div>
                 <button id="ambil-nomor" class="btn-primary">Ambil Nomor Antrian</button>
             </main>
@@ -36,10 +39,14 @@
         <div id="admin-view" class="hidden">
             <header>
                 <h1>Panel Admin Kantin</h1>
-                <a href="#" id="admin-logout-link">Logout</a>
+                 <div class="header-user-info">
+                    <span id="user-info-admin"></span>
+                    <a href="#" id="logout-btn-admin">Logout</a>
+                </div>
             </header>
             <main>
-                <div class="card now-serving">
+                <!-- ... (Isi card tetap sama) ... -->
+                 <div class="card now-serving">
                     <h2>Sedang Dilayani</h2>
                     <p id="admin-nomor-sekarang">-</p>
                 </div>
@@ -49,20 +56,15 @@
                 </div>
                 <div class="card upcoming-queue">
                     <h2>Daftar Antrian Aktif</h2>
-                    <ul id="daftar-antrian-admin">
-                        <li>Tidak ada antrian.</li>
-                    </ul>
+                    <ul id="daftar-antrian-admin"></ul>
                 </div>
             </main>
         </div>
-
-        <footer>
-            <a href="#" id="admin-login-link">Login sebagai Admin</a>
-        </footer>
     </div>
 
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK (WAJIB ADA auth.js DAN database.js) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <!-- Script Lokal -->

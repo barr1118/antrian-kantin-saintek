@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sistem Antrian Kantin</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="login-body">
+    <div class="container login-container">
+        <header>
+            <h1>Sistem Antrian Kantin</h1>
+            <p>Silakan login untuk melanjutkan</p>
+        </header>
+        <main>
+            <button id="google-login-btn" class="btn-login-google">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo">
+                Login dengan Google
+            </button>
+        </main>
+    </div>
+
+    <!-- Firebase SDK (WAJIB ADA auth.js) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+    <!-- Script Lokal -->
+    <script src="firebase-config.js"></script>
+    <script src="login.js"></script>
+</body>
+</html>

@@ -132,3 +132,61 @@ footer {
 .hidden {
     display: none !important;
 }
+
+/* Style tambahan untuk Halaman Login */
+.login-body {
+    align-items: center; /* Memusatkan container login secara vertikal */
+}
+
+.login-container {
+    max-width: 400px;
+}
+
+.login-container p {
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.btn-login-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    width: 100%;
+    padding: 12px;
+    font-size: 1em;
+    font-weight: bold;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #555;
+    cursor: pointer;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.btn-login-google:hover {
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-login-google img {
+    width: 20px;
+    height: 20px;
+}
+
+/* Style untuk info user di header */
+.header-user-info {
+    font-size: 0.8rem;
+    color: #555;
+    margin-top: -15px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-user-info a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
