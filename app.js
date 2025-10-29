@@ -1,57 +1,57 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- KONFIGURASI PENTING ---
-    // Ganti dengan email yang akan dijadikan sebagai admin
+    
+    
     const ADMIN_EMAIL = "am762638@gmail.com"; 
     
-    // Inisialisasi Firebase
+    
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const database = firebase.database();
 
-    // Referensi Database
+    
     const antrianRef = database.ref('antrian');
     const nomorSekarangRef = database.ref('nomorSedangDipanggil');
     const nomorTerakhirRef = database.ref('nomorTerakhir');
 
-    // --- Cek Status Login Pengguna ---
+    
     auth.onAuthStateChanged((user) => {
         if (user) {
-            // Pengguna sudah login, lanjutkan ke aplikasi
+            
             console.log('Pengguna terdeteksi:', user.email);
             runApp(user);
         } else {
-            // Pengguna tidak login, paksa kembali ke halaman login
+            
             console.log('Tidak ada pengguna, mengarahkan ke login.html');
             window.location.href = 'login.html';
         }
     });
 
-    // Fungsi utama aplikasi, hanya berjalan setelah login berhasil
+    
     function runApp(user) {
-        // --- Elemen Tampilan & Tombol ---
+        
         const mahasiswaView = document.getElementById('mahasiswa-view');
         const adminView = document.getElementById('admin-view');
         
-        // Info Pengguna & Logout
+        
         const userInfoMhs = document.getElementById('user-info-mhs');
         const logoutBtnMhs = document.getElementById('logout-btn-mhs');
         const userInfoAdmin = document.getElementById('user-info-admin');
         const logoutBtnAdmin = document.getElementById('logout-btn-admin');
 
-        // Elemen Mahasiswa
+        
         const mhsNomorSekarangEl = document.getElementById('mhs-nomor-sekarang');
         const nomorSayaEl = document.getElementById('nomor-saya');
         const daftarAntrianEl = document.getElementById('daftar-antrian');
         const ambilNomorBtn = document.getElementById('ambil-nomor');
         const myNumberCard = document.querySelector('.my-number');
         
-        // Elemen Admin
+        
         const adminNomorSekarangEl = document.getElementById('admin-nomor-sekarang');
         const daftarAntrianAdminEl = document.getElementById('daftar-antrian-admin');
         const panggilSelanjutnyaBtn = document.getElementById('panggil-selanjutnya');
         const resetAntrianBtn = document.getElementById('reset-antrian');
 
-        // --- Penentuan Peran & Tampilan ---
+        
         if (user.email === ADMIN_EMAIL) {
             adminView.classList.remove('hidden');
             mahasiswaView.classList.add('hidden');
@@ -62,18 +62,18 @@ document.addEventListener('DOMContentLoaded', () => {
             userInfoMhs.textContent = `Halo, ${user.displayName || user.email}`;
         }
 
-        // --- Logika Tombol Logout ---
+        
         function handleLogout() {
             auth.signOut().then(() => {
                 console.log('Logout berhasil');
-                // onAuthStateChanged akan otomatis mengarahkan ke login.html
+                
             });
         }
         logoutBtnMhs.addEventListener('click', handleLogout);
         logoutBtnAdmin.addEventListener('click', handleLogout);
 
-        // --- SISA KODE (LOGIKA ANTRIAN) TETAP SAMA SEPERTI SEBELUMNYA ---
-        // (Saya salin lagi kode antrian yang sudah diperbaiki agar lengkap)
+        
+        
 
         function updateMahasiswaUIState() {
             const myStoredNumber = localStorage.getItem('nomorAntrianSaya');
@@ -172,5 +172,5 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('Antrian berhasil direset.');
             }
         });
-    } // Akhir dari fungsi runApp
+    } 
 });
