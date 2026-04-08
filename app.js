@@ -85,8 +85,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 nomorSayaEl.textContent = '-';
                 ambilNomorBtn.disabled = false;
                 ambilNomorBtn.textContent = "Ambil Nomor Antrian";
-                myNumberCard.style.backgroundColor = '#f9f9f9';
-                myNumberCard.querySelector('p').style.color = '#007bff';
+                myNumberCard.style.background = 'rgba(255, 255, 255, 0.75)';
+                myNumberCard.querySelector('p').style.color = '#4F46E5';
             }
         }
 
@@ -97,11 +97,11 @@ document.addEventListener('DOMContentLoaded', () => {
             adminNomorSekarangEl.textContent = teksNomor;
             const myStoredNumber = localStorage.getItem('nomorAntrianSaya');
             if (myStoredNumber && (nomor && nomor.toString() === myStoredNumber)) {
-                myNumberCard.style.backgroundColor = '#28a745';
+                myNumberCard.style.background = 'linear-gradient(135deg, #34d399, #10b981)';
                 myNumberCard.querySelector('p').style.color = 'white';
             } else {
-                myNumberCard.style.backgroundColor = '#f9f9f9';
-                myNumberCard.querySelector('p').style.color = '#007bff';
+                myNumberCard.style.background = 'rgba(255, 255, 255, 0.75)';
+                myNumberCard.querySelector('p').style.color = '#4F46E5';
             }
             updateMahasiswaUIState();
         });
