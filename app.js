@@ -1,57 +1,64 @@
 document.addEventListener('DOMContentLoaded', () => {
-    
-    
-    const ADMIN_EMAIL = "am762638@gmail.com"; 
-    
-    
+
+
+    const ADMIN_EMAIL = "am762638@gmail.com";
+
+
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const database = firebase.database();
 
-    
+
     const antrianRef = database.ref('antrian');
     const nomorSekarangRef = database.ref('nomorSedangDipanggil');
     const nomorTerakhirRef = database.ref('nomorTerakhir');
 
-    
+
     auth.onAuthStateChanged((user) => {
         if (user) {
-            
-            console.log('Pengguna terdeteksi:', user.email);
-            runApp(user);
+            // Validasi domain untuk perlindungan ganda (jika ada yang membypass login.html)
+            if (user.email === ADMIN_EMAIL || user.email.endsWith('@student.ar-raniry.ac.id')) {
+                console.log('Pengguna terdeteksi:', user.email);
+                runApp(user);
+            } else {
+                alert('Akses Ditolak! Anda wajib menggunakan email Student UIN Ar-Raniry untuk mengantri.');
+                auth.signOut().then(() => {
+                    window.location.href = 'login.html';
+                });
+            }
         } else {
-            
+
             console.log('Tidak ada pengguna, mengarahkan ke login.html');
             window.location.href = 'login.html';
         }
     });
 
-    
+
     function runApp(user) {
-        
+
         const mahasiswaView = document.getElementById('mahasiswa-view');
         const adminView = document.getElementById('admin-view');
-        
-        
+
+
         const userInfoMhs = document.getElementById('user-info-mhs');
         const logoutBtnMhs = document.getElementById('logout-btn-mhs');
         const userInfoAdmin = document.getElementById('user-info-admin');
         const logoutBtnAdmin = document.getElementById('logout-btn-admin');
 
-        
+
         const mhsNomorSekarangEl = document.getElementById('mhs-nomor-sekarang');
         const nomorSayaEl = document.getElementById('nomor-saya');
         const daftarAntrianEl = document.getElementById('daftar-antrian');
         const ambilNomorBtn = document.getElementById('ambil-nomor');
         const myNumberCard = document.querySelector('.my-number');
-        
-        
+
+
         const adminNomorSekarangEl = document.getElementById('admin-nomor-sekarang');
         const daftarAntrianAdminEl = document.getElementById('daftar-antrian-admin');
         const panggilSelanjutnyaBtn = document.getElementById('panggil-selanjutnya');
         const resetAntrianBtn = document.getElementById('reset-antrian');
 
-        
+
         if (user.email === ADMIN_EMAIL) {
             adminView.classList.remove('hidden');
             mahasiswaView.classList.add('hidden');
@@ -62,18 +69,18 @@ document.addEventListener('DOMContentLoaded', () => {
             userInfoMhs.textContent = `Halo, ${user.displayName || user.email}`;
         }
 
-        
+
         function handleLogout() {
             auth.signOut().then(() => {
                 console.log('Logout berhasil');
-                
+
             });
         }
         logoutBtnMhs.addEventListener('click', handleLogout);
         logoutBtnAdmin.addEventListener('click', handleLogout);
 
-        
-        
+
+
 
         function updateMahasiswaUIState() {
             const myStoredNumber = localStorage.getItem('nomorAntrianSaya');
@@ -135,14 +142,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         ambilNomorBtn.addEventListener('click', () => {
             nomorTerakhirRef.transaction((currentValue) => (currentValue || 0) + 1)
-            .then((result) => {
-                if (result.committed) {
-                    const nomorBaru = result.snapshot.val();
-                    antrianRef.push().set({ nomor: nomorBaru });
-                    localStorage.setItem('nomorAntrianSaya', nomorBaru.toString());
-                    updateMahasiswaUIState();
-                }
-            });
+                .then((result) => {
+                    if (result.committed) {
+                        const nomorBaru = result.snapshot.val();
+                        antrianRef.push().set({ nomor: nomorBaru });
+                        localStorage.setItem('nomorAntrianSaya', nomorBaru.toString());
+                        updateMahasiswaUIState();
+                    }
+                });
         });
 
         updateMahasiswaUIState();
@@ -172,5 +179,5 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('Antrian berhasil direset.');
             }
         });
-    } 
+    }
 });

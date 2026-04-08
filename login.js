@@ -12,9 +12,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // Buka pop-up untuk login
         auth.signInWithPopup(provider)
             .then((result) => {
-                // Login berhasil, arahkan ke halaman utama
-                console.log('Login berhasil:', result.user);
-                window.location.href = 'index.html';
+                const user = result.user;
+                // Verifikasi Email
+                if (user.email === 'am762638@gmail.com' || user.email.endsWith('@student.ar-raniry.ac.id')) {
+                    console.log('Login berhasil:', user);
+                    window.location.href = 'index.html';
+                } else {
+                    auth.signOut().then(() => {
+                        alert('Akses Ditolak! Harap gunakan email student UIN Ar-Raniry untuk mengantri.');
+                    });
+                }
             })
             .catch((error) => {
                 // Handle error di sini
